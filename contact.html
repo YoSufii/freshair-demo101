@@ -1,22 +1,92 @@
-try{
-  await fetch(webhook, {
-    method: "POST",
-    mode: "no-cors",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify(payload)
-  });
+<script>
 
-  const arr = JSON.parse(localStorage.getItem('freshair_demo_leads') || '[]');
-  arr.push(payload);
-  localStorage.setItem('freshair_demo_leads', JSON.stringify(arr));
-  loadSessionLeads();
+const webhook = "https://hooks.zapier.com/hooks/catch/26818877/uxn7mrh/";
 
-  status.textContent = "Lead sent to automation";
-  form.reset();
-
-  setTimeout(()=> window.location.href="thankyou.html",700);
-
-} catch(err){
-  console.error(err);
-  status.textContent = "Error sending";
+function escapeHtml(s){
+  return String(s || '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
 }
+
+const form = document.getElementById('leadForm');
+const status = document.getElementById('status');
+const leadsContainer = document.getElementById('leadsContainer');
+const submitBtn = document.getElementById('submitBtn');
+
+function loadSessionLeads(){
+  leadsContainer.innerHTML = '';
+  const arr = JSON.parse(localStorage.getItem('freshair_demo_leads') || '[]').slice().reverse();
+
+  if(!arr.length){
+    leadsContainer.innerHTML = '<div class="small">No leads yet — submit one to test.</div>';
+    return;
+  }
+
+  arr.forEach(l=>{
+    const el = document.createElement('div');
+    el.className = 'lead';
+    el.innerHTML = `<strong>${escapeHtml(l.name)}</strong>
+    <div class="small">${escapeHtml(l.email)} • ${escapeHtml(l.location)}</div>`;
+    leadsContainer.appendChild(el);
+  });
+}
+
+loadSessionLeads();
+
+form.addEventListener('submit', async function(e){
+
+  e.preventDefault();
+
+  status.textContent = "Sending...";
+  submitBtn.disabled = true;
+
+  const data = new FormData(form);
+  const payload = {};
+
+  data.forEach((v,k)=>payload[k]=v);
+
+  try{
+
+    await fetch(webhook,{
+      method:"POST",
+      mode:"no-cors",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(payload)
+    });
+
+    const arr = JSON.parse(localStorage.getItem('freshair_demo_leads') || '[]');
+    arr.push(payload);
+
+    localStorage.setItem('freshair_demo_leads', JSON.stringify(arr));
+
+    loadSessionLeads();
+
+    status.textContent = "Lead sent to automation";
+
+    form.reset();
+
+    setTimeout(()=>{
+      window.location.href="thankyou.html";
+    },700);
+
+  }catch(err){
+
+    console.error(err);
+
+    status.textContent = "Error sending";
+
+  }finally{
+
+    submitBtn.disabled = false;
+
+  }
+
+});
+
+</script>
