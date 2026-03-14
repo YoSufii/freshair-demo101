@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FreshAir Realty — Listings</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body{font-family:Inter,system-ui,Arial;margin:0;background:#f7f9fb;color:#091022}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#fff;border-bottom:1px solid #e6e9ee}
+    .brand{font-weight:700}
+    .container{max-width:1100px;margin:20px auto;padding:0 18px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{background:#fff;padding:0;border-radius:10px;overflow:hidden;border:1px solid #eef2f7}
+    .card img{width:100%;height:170px;object-fit:cover;display:block}
+    .meta{padding:12px}
+    .meta h3{margin:0 0 6px}
+    .small{color:#6b7280;font-size:13px}
+    @media(max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    @media(max-width:640px){ .grid{grid-template-columns:1fr} .nav{padding:10px} }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">FreshAir Realty</div>
+    <nav>
+      <a href="index.html">Home</a> • <a href="contact.html">Request Consultation</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Available Listings</h1>
+    <div class="grid">
+      <!-- static demos -->
+      <div class="card"><img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1200&q=60"><div class="meta"><h3>2-Bed in Manhattan</h3><div class="small">$720,000 • 2 bd • 1 ba</div></div></div>
+      <div class="card"><img src="https://images.unsplash.com/photo-1505691723518-36a2a2b0098f?auto=format&fit=crop&w=1200&q=60"><div class="meta"><h3>Brooklyn Loft</h3><div class="small">$1,100,000 • 3 bd • 2 ba</div></div></div>
+      <div class="card"><img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=1200&q=60"><div class="meta"><h3>Upper West Brownstone</h3><div class="small">$2,200,000 • 4 bd • 3 ba</div></div></div>
+      <div class="card"><img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=60"><div class="meta"><h3>Queens Cozy 1-Bed</h3><div class="small">$420,000 • 1 bd • 1 ba</div></div></div>
+    </div>
+  </main>
+</body>
+</html>

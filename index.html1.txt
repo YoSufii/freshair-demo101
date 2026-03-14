@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FreshAir Realty — Home</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --accent:#0a66c2; --accent-dark:#084c93;
+      --muted:#6b7280; --bg:#f4f6f8;
+      --card:#ffffff;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Roboto,Arial;background:var(--bg);color:#0b1220}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;background:#fff;border-bottom:1px solid #e6e9ee}
+    .brand{font-weight:700;letter-spacing:-0.2px}
+    .nav a{margin-left:16px;color:var(--muted);text-decoration:none;font-weight:600}
+    .hero{
+      background-image:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1800&q=60');
+      background-size:cover;background-position:center;
+      height:420px;display:flex;align-items:center;
+      justify-content:center;color:white;text-align:center;
+      position:relative;
+    }
+    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,10,20,0.35),rgba(6,10,20,0.55))}
+    .hero .inner{position:relative;z-index:1;max-width:940px;padding:0 20px}
+    .hero h1{font-size:40px;margin:0 0 8px}
+    .hero p{margin:0;font-size:18px;color:rgba(255,255,255,0.9)}
+    .wrap{max-width:1100px;margin:-60px auto 60px;padding:0 20px}
+    .grid{display:grid;grid-template-columns:1fr 380px;gap:22px;align-items:start}
+    .card{background:var(--card);padding:20px;border-radius:12px;box-shadow:0 8px 30px rgba(8,12,20,0.06)}
+    .card h2{margin:0 0 12px}
+    .lead{padding:12px;border-radius:8px;background:#fbfdff;border:1px solid #eef4ff;margin-bottom:10px}
+    .small{color:var(--muted);font-size:13px}
+    .listings{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .prop{background:#fff;border-radius:10px;overflow:hidden;border:1px solid #f0f2f5}
+    .prop img{width:100%;height:120px;object-fit:cover;display:block}
+    .prop .meta{padding:10px}
+    .btn{display:inline-block;padding:10px 14px;border-radius:8px;background:var(--accent);color:white;text-decoration:none;font-weight:700}
+    @media (max-width:900px){ .grid{grid-template-columns:1fr} .listings{grid-template-columns:1fr} .hero{height:300px} .hero h1{font-size:28px} }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">FreshAir Realty</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="listings.html">Listings</a>
+      <a href="contact.html" class="btn" style="padding:8px 12px;background:var(--accent)">Request Consultation</a>
+    </nav>
+  </header>
+
+  <section class="hero" role="banner">
+    <div class="inner">
+      <h1>Find your dream property in New York</h1>
+      <p class="small">Premium properties, curated searches — try the demo form to see leads flow into the automation.</p>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <div class="grid">
+      <section class="card">
+        <h2>Featured properties</h2>
+        <div class="listings" id="featured">
+          <!-- properties injected by JS -->
+        </div>
+      </section>
+
+      <aside class="card">
+        <h2>Recent demo leads</h2>
+        <p class="small">Leads submitted during this browser session (stored locally).</p>
+        <div id="recentLeads" style="margin-top:12px"></div>
+        <div style="margin-top:18px">
+          <a href="contact.html" class="btn">Submit a Test Lead</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+<script>
+/* demo property data */
+const props = [
+  {title:'Modern 2-Bed Manhattan', price:'$720,000', img:'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=60'},
+  {title:'Industrial Loft, Brooklyn', price:'$1,100,000', img:'https://images.unsplash.com/photo-1505691723518-36a2a2b0098f?auto=format&fit=crop&w=800&q=60'},
+  {title:'Sunny 1-Bed, Queens', price:'$420,000', img:'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=60'},
+  {title:'Brownstone, Upper West', price:'$2,200,000', img:'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=800&q=60'}
+];
+
+const featured = document.getElementById('featured');
+props.forEach(p=>{
+  const el = document.createElement('div');
+  el.className='prop';
+  el.innerHTML = `<img src="${p.img}" alt="${p.title}"><div class="meta"><strong>${p.title}</strong><div class="small">${p.price}</div></div>`;
+  featured.appendChild(el);
+});
+
+/* load recent leads from localStorage */
+function loadLeadsUI(){
+  const node = document.getElementById('recentLeads');
+  node.innerHTML='';
+  const leads = JSON.parse(localStorage.getItem('freshair_demo_leads')||'[]').slice().reverse();
+  if(!leads.length){ node.innerHTML = '<div class="small">No demo leads yet — submit one from "Request Consultation".</div>'; return; }
+  leads.forEach(l=>{
+    const d = document.createElement('div');
+    d.className='lead';
+    d.innerHTML = `<strong>${escapeHtml(l.name||'—')}</strong> <div class="small">${escapeHtml(l.email||'—')} • ${escapeHtml(l.location||'—')}</div>`;
+    node.appendChild(d);
+  })
+}
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+loadLeadsUI();
+</script>
+</body>
+</html>
