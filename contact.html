@@ -1,142 +1,22 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>Contact — FreshAir Realty</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body{font-family:Inter,system-ui,Arial;margin:0;background:#f4f6f8;color:#091022}
-    .nav{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#fff;border-bottom:1px solid #e6e9ee}
-    .brand{font-weight:700}
-    .container{max-width:920px;margin:30px auto;padding:20px}
-    .grid{display:grid;grid-template-columns:1fr 340px;gap:22px}
-    .card{background:#fff;padding:20px;border-radius:10px;box-shadow:0 8px 30px rgba(10,14,22,0.04)}
-    label{display:block;margin-top:10px;font-weight:600;color:#0b1220}
-    input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ee;margin-top:8px}
-    button{margin-top:12px;background:#0a66c2;color:#fff;padding:12px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
-    .small{font-size:13px;color:#6b7280}
-    .lead{padding:10px;border-radius:8px;background:#fbfdff;border:1px solid #eef4ff;margin-bottom:10px}
-    @media(max-width:900px){ .grid{grid-template-columns:1fr} }
-  </style>
-</head>
-<body>
-  <header class="nav">
-    <div class="brand">FreshAir Realty</div>
-    <nav>
-      <a href="index.html">Home</a> • <a href="listings.html">Listings</a>
-    </nav>
-  </header>
+try{
+  await fetch(webhook, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
+  });
 
-  <main class="container">
-    <div class="grid">
-      <section class="card">
-        <h2>Request Property Consultation</h2>
-        <p class="small">Fill the form and watch this demo send a webhook to Zapier.</p>
+  const arr = JSON.parse(localStorage.getItem('freshair_demo_leads') || '[]');
+  arr.push(payload);
+  localStorage.setItem('freshair_demo_leads', JSON.stringify(arr));
+  loadSessionLeads();
 
-        <form id="leadForm">
-          <label for="name">Full name</label>
-          <input id="name" name="name" required placeholder="John Doe">
+  status.textContent = "Lead sent to automation";
+  form.reset();
 
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" required placeholder="john@example.com">
+  setTimeout(()=> window.location.href="thankyou.html",700);
 
-          <label for="phone">Phone</label>
-          <input id="phone" name="phone" placeholder="+1 555 555 5555">
-
-          <label for="location">Interested area</label>
-          <select id="location" name="location">
-            <option>Manhattan</option><option>Brooklyn</option><option>Queens</option><option>Bronx</option>
-          </select>
-
-          <label for="budget">Budget</label>
-          <select id="budget" name="budget">
-            <option>$300k - $500k</option><option>$500k - $800k</option><option>$800k+</option>
-          </select>
-
-          <label for="message">Message</label>
-          <textarea id="message" name="message" rows="4" placeholder="Any specifics..."></textarea>
-
-          <div style="display:flex;gap:10px;align-items:center">
-            <button id="submitBtn" type="submit">Send request</button>
-            <div id="status" class="small"></div>
-          </div>
-        </form>
-      </section>
-
-      <aside class="card">
-        <h3>Session leads</h3>
-        <p class="small">Leads submitted in this browser session (stored locally).</p>
-        <div id="leadsContainer" style="margin-top:12px"></div>
-      </aside>
-    </div>
-  </main>
-
-<script>
-/* === WEBHOOK: inserted as requested === */
-const webhook = "https://hooks.zapier.com/hooks/catch/26818877/uxn7mrh/";
-
-/* helper */
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-/* UI elements */
-const form = document.getElementById('leadForm');
-const status = document.getElementById('status');
-const leadsContainer = document.getElementById('leadsContainer');
-const submitBtn = document.getElementById('submitBtn');
-
-/* load session leads */
-function loadSessionLeads(){
-  leadsContainer.innerHTML='';
-  const arr = JSON.parse(localStorage.getItem('freshair_demo_leads') || '[]').slice().reverse();
-  if(!arr.length){ leadsContainer.innerHTML = '<div class="small">No leads yet — submit one to test.</div>'; return; }
-  arr.forEach(l=>{
-    const el = document.createElement('div'); el.className='lead';
-    el.innerHTML = `<strong>${escapeHtml(l.name)}</strong> <div class="small">${escapeHtml(l.email)} • ${escapeHtml(l.location)}</div>`;
-    leadsContainer.appendChild(el);
-  })
+} catch(err){
+  console.error(err);
+  status.textContent = "Error sending";
 }
-loadSessionLeads();
-
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  status.textContent = 'Sending…';
-  submitBtn.disabled = true;
-
-  const data = new FormData(form);
-  const payload = {};
-  data.forEach((v,k)=> payload[k]=v);
-
-  try{
-    const res = await fetch(webhook, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-
-    // save locally for demo display
-    const arr = JSON.parse(localStorage.getItem('freshair_demo_leads') || '[]');
-    arr.push(payload);
-    localStorage.setItem('freshair_demo_leads', JSON.stringify(arr));
-    loadSessionLeads();
-
-    if (!res.ok) {
-      status.textContent = 'Sent (warning: webhook returned ' + res.status + ')';
-    } else {
-      status.textContent = 'Sent — showing on site';
-    }
-
-    // clear & redirect to thank you quickly
-    form.reset();
-    setTimeout(()=> window.location.href = 'thankyou.html', 700);
-
-  } catch(err){
-    console.error(err);
-    status.textContent = 'Error sending — check console';
-  } finally {
-    submitBtn.disabled = false;
-    setTimeout(()=> status.textContent = '', 3000);
-  }
-});
-</script>
-</body>
-</html>
